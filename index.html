@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real-Time Crypto Chart with Chart.js and Anime.js</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="el">Real-Time Crypto Prices</h1>
+      <select id="chartType" class="select">
+        <option value="line">Line</option>
+        <option value="bar">Bar</option>
+        <option value="pie">Pie</option>
+        <option value="radar">Radar</option>
+      </select>
+      <div class="graphDiv">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+  const chartTypeSelect = document.getElementById("chartType");
+  let graphType = "line";
+  let myChart;
+
+  // Simulate fluctuating data by adding a random variation to the Bitcoin price
+  let currentPrice = 50000;  // Starting price for simulation
+
+  const fetchSimulatedCryptoData = async () => {
+    // Simulate price fluctuation
+    const fluctuation = (Math.random() - 0.5) * 1000;  // Random fluctuation between -500 and +500
+    currentPrice += fluctuation;
+    return currentPrice.toFixed(2);
+  };
+
+  const updateChart = async () => {
+    const price = await fetchSimulatedCryptoData();
+    const timestamp = new Date().toLocaleTimeString();
+
+    chartData.labels.push(timestamp);
+    chartData.datasets[0].data.push(price);
+
+    if (chartData.labels.length > 10) {
+      chartData.labels.shift();
+      chartData.datasets[0].data.shift();
+    }
+
+    myChart.update();
+  };
+
+  const createChart = () => {
+    const ctx = document.getElementById("myChart").getContext("2d");
+    if (myChart) {
+      myChart.destroy();
+    }
+    myChart = new Chart(ctx, {
+      type: graphType,
+      data: chartData,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Price in USD',
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Time',
+            },
+          },
+        },
+        animation: {
+          duration: 1000,
+          easing: "easeInOutQuad",
+        },
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: 'rgb(75, 192, 192)'
+            }
+          }
+        },
+      },
+    });
+  };
+
+  chartTypeSelect.addEventListener("change", () => {
+    graphType = chartTypeSelect.value;
+    createChart();
+  });
+
+  let chartData = {
+    labels: [],
+    datasets: [
+      {
+        label: "Bitcoin Price (USD)",
+        data: [],
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: "rgba(75, 192, 192, 1)",
+        pointBorderColor: "rgba(75, 192, 192, 1)",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "rgba(75, 192, 192, 1)",
+        pointHoverBorderColor: "rgba(75, 192, 192, 1)",
+        pointHitRadius: 10,
+        pointBorderWidth: 2,
+      },
+    ],
+  };
+
+  createChart();
+  setInterval(updateChart, 5000);
+
+  anime({
+    targets: ".el",
+    translateX: 250,
+    scale: 0.4,
+    rotate: "1.2turn",
+    duration: 2000,
+    easing: "easeInOutQuad",
+    loop: true,
+    direction: "alternate",
+  });
+});
+
+    </script>
+  </body>
+</html>
